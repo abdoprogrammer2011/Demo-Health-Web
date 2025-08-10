@@ -1,0 +1,728 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>كود ماسترز | ديمو مراقبة النعاس</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <style>
+    :root{
+      --bg:#0f1226;
+      --bg-2:#131739;
+      --card:#1a1f4a;
+      --text:#e9ecff;
+      --muted:#98a2ff;
+      --primary:#6c8dff;
+      --primary-2:#8e6cff;
+      --success:#00d4a6;
+      --warning:#ffcc00;
+      --danger:#ff4d6d;
+      --shadow:0 10px 30px rgba(0,0,0,.25);
+      --ring-track:#2a306b;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; font-family:Cairo, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      background:
+        radial-gradient(1200px 600px at 120% -10%, rgba(108,141,255,.25), transparent 60%),
+        radial-gradient(1000px 500px at -10% 110%, rgba(142,108,255,.2), transparent 60%),
+        linear-gradient(180deg, #0b0e20, #0f1226);
+      color:var(--text);
+      min-height:100vh;
+    }
+    header{
+      position:sticky; top:0; z-index:10;
+      background:rgba(15,18,38,.7); backdrop-filter: blur(8px);
+      border-bottom:1px solid #22264f;
+    }
+    .nav{
+      max-width:1200px; margin:0 auto; padding:12px 16px; display:flex; align-items:center; gap:12px;
+    }
+    .brand{display:flex; align-items:center; gap:10px; font-weight:700; font-size:20px;}
+    .brand .logo{
+      width:36px; height:36px; display:grid; place-items:center; border-radius:10px;
+      background:linear-gradient(135deg, var(--primary), var(--primary-2)); box-shadow: var(--shadow);
+      animation: float 3s ease-in-out infinite;
+    }
+    @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+    .nav-actions{margin-inline-start:auto; display:flex; gap:8px; flex-wrap:wrap}
+    .btn{
+      background:linear-gradient(135deg, #2a306b, #1a1f4a); color:var(--text); border:1px solid #30367a;
+      padding:10px 14px; border-radius:10px; cursor:pointer; transition:.2s; display:inline-flex; gap:8px; align-items:center;
+    }
+    .btn:hover{transform:translateY(-1px); box-shadow: var(--shadow)}
+    .btn.primary{background:linear-gradient(135deg, var(--primary), var(--primary-2)); border-color:transparent; color:#0b0e20; font-weight:700}
+    .btn.danger{background:linear-gradient(135deg, #6b2032, #3e1820); border-color:#5f1b2a; color:#ffdbe4}
+    .btn.success{background:linear-gradient(135deg, #0d563f, #0a3e2d); border-color:#0c4c37; color:#c9ffee}
+    .hero{
+      max-width:1200px; margin:16px auto 0; padding:16px;
+      display:grid; grid-template-columns:1.1fr .9fr; gap:16px;
+    }
+    .banner{
+      background:linear-gradient(135deg, rgba(108,141,255,.14), rgba(142,108,255,.10));
+      border:1px solid #2b3274; padding:18px; border-radius:16px; box-shadow: var(--shadow);
+    }
+    .banner h1{margin:0 0 8px; font-size:26px}
+    .subtitle{color:var(--muted); font-size:14px}
+    .status-badges{margin-top:12px; display:flex; gap:8px; flex-wrap:wrap}
+    .badge{padding:6px 10px; border-radius:999px; font-size:12px; border:1px solid #2f3579; background:#171a3b}
+    .grid{
+      max-width:1200px; margin:14px auto; padding:0 16px;
+      display:grid; grid-template-columns:repeat(12,1fr); gap:14px;
+    }
+    .card{
+      grid-column: span 3;
+      background:linear-gradient(180deg, rgba(26,31,74,.9), rgba(15,18,38,.9));
+      border:1px solid #28307a; border-radius:16px; box-shadow: var(--shadow);
+      padding:14px; position:relative; overflow:hidden;
+      animation: pop .4s ease both;
+    }
+    @keyframes pop{from{transform:translateY(6px); opacity:0}to{transform:translateY(0); opacity:1}}
+    .card.wide{grid-column: span 6}
+    .card.full{grid-column: span 12}
+    .card h3{margin:0 0 8px; font-size:16px; color:#cbd2ff}
+    .vital{
+      display:flex; align-items:center; gap:12px; margin-top:6px;
+    }
+    .big{font-size:34px; font-weight:700; letter-spacing:.5px}
+    .unit{font-size:14px; color:var(--muted)}
+    .heart{
+      width:44px; height:44px; border-radius:50%; display:grid; place-items:center;
+      background:radial-gradient(circle at 30% 30%, rgba(255,77,109,.45), rgba(255,77,109,.15));
+      border:1px solid rgba(255,77,109,.35);
+      animation: heartbeat 1.2s ease-in-out infinite;
+      box-shadow:0 0 18px rgba(255,77,109,.25) inset;
+    }
+    @keyframes heartbeat{
+      0%,100%{transform:scale(1)}
+      20%{transform:scale(1.12)}
+      40%{transform:scale(1)}
+      60%{transform:scale(1.12)}
+      80%{transform:scale(1)}
+    }
+    .ring{
+      --val: 0; /* 0-100 */
+      width:120px; height:120px; border-radius:50%;
+      background:
+        conic-gradient(var(--primary) calc(var(--val)*1%), #2a2f63 0),
+        radial-gradient(circle 52px, #0f1226 62%, transparent 63%);
+      border:1px solid #2b3274;
+      position:relative; display:grid; place-items:center;
+      transition: .2s ease;
+    }
+    .ring .label{font-size:12px; color:var(--muted)}
+    .ring .value{font-size:22px; font-weight:800}
+    .risk{
+      --risk: 10;
+      width:140px; height:140px; border-radius:50%;
+      background:
+        conic-gradient(var(--danger) calc(var(--risk)*1%), #2a2f63 0),
+        radial-gradient(circle 60px, #0f1226 65%, transparent 66%);
+      border:1px solid #3b2242; display:grid; place-items:center; transition:.3s;
+      box-shadow:0 0 0 6px rgba(255,77,109,.08);
+      position:relative;
+    }
+    .risk.safe{background:
+      conic-gradient(var(--success) calc(var(--risk)*1%), #2a2f63 0),
+      radial-gradient(circle 60px, #0f1226 65%, transparent 66%);}
+    .risk.warn{background:
+      conic-gradient(var(--warning) calc(var(--risk)*1%), #2a2f63 0),
+      radial-gradient(circle 60px, #0f1226 65%, transparent 66%);}
+    .status-dot{
+      width:10px; height:10px; border-radius:50%; background:var(--success); box-shadow:0 0 12px var(--success);
+      display:inline-block; margin-inline-start:6px;
+      animation: blink 1.4s ease-in-out infinite;
+    }
+    @keyframes blink{0%,100%{opacity:1}50%{opacity:.35}}
+    .controls{display:flex; flex-wrap:wrap; gap:8px; margin-top:10px}
+    .switch{display:flex; align-items:center; gap:6px; font-size:13px}
+    .switch input{appearance:none; width:38px; height:22px; background:#2c315f; border-radius:999px; position:relative; outline:none; cursor:pointer; transition:.2s}
+    .switch input:checked{background:#1f9d7a}
+    .switch input::after{
+      content:""; position:absolute; top:3px; inset-inline-start:3px; width:16px; height:16px; background:#fff; border-radius:50%; transition:.2s;
+    }
+    .switch input:checked::after{inset-inline-start:19px}
+    .chart-wrap{height:260px}
+    canvas{max-width:100%!important}
+    .log{
+      display:grid; gap:8px; max-height:260px; overflow:auto; padding-inline-end:4px;
+    }
+    .log .item{
+      display:flex; gap:10px; align-items:flex-start; background:#12153a; border:1px solid #2a306b; border-radius:12px; padding:10px;
+    }
+    .log .item i{width:26px; height:26px; display:grid; place-items:center; border-radius:8px}
+    .i-safe{background:#0c3a2d; color:#9dffd9; border:1px solid #17614c}
+    .i-warn{background:#3f370c; color:#ffe18f; border:1px solid #6f5f13}
+    .i-danger{background:#4a1a26; color:#ffb6c4; border:1px solid #7a2836}
+    .footer-note{opacity:.75; font-size:12px; margin-top:8px}
+    .toast{
+      position:fixed; inset-inline-end:16px; bottom:16px; min-width:220px; max-width:90vw;
+      background:#12153a; border:1px solid #2a306b; color:var(--text); padding:12px 14px; border-radius:12px; box-shadow: var(--shadow);
+      transform:translateY(16px); opacity:0; pointer-events:none; transition:.25s;
+      z-index:999;
+    }
+    .toast.show{transform:translateY(0); opacity:1}
+    .countdown{
+      position:fixed; inset:0; background:rgba(8,10,22,.8); display:none;
+      align-items:center; justify-content:center; z-index:200;
+    }
+    .countdown.show{display:flex}
+    .countdown .panel{
+      width:min(560px, 94vw); background:#15183c; border:1px solid #2a306b; border-radius:16px; padding:18px; text-align:center; box-shadow: var(--shadow);
+      animation: pop .3s ease both;
+    }
+    .big-count{font-size:64px; font-weight:800; line-height:1; margin:8px 0; color:#ffd1d9; text-shadow:0 6px 24px rgba(255,77,109,.35)}
+    .hint{font-size:13px; color:var(--muted)}
+    .settings{display:grid; grid-template-columns:repeat(3,1fr); gap:12px}
+    .field{background:#12153a; border:1px solid #2a306b; border-radius:12px; padding:10px}
+    .field label{font-size:12px; color:#b5b9ff}
+    .field input[type=range]{width:100%}
+    .field input[type=text]{width:100%; background:#0f1226; border:1px solid #2a306b; color:var(--text); padding:8px 10px; border-radius:10px}
+    .pill{display:inline-flex; align-items:center; gap:8px; background:#13183b; padding:6px 10px; border-radius:999px; border:1px solid #2b3274}
+    .muted{color:var(--muted)}
+    .link{color:#aecdff; text-decoration:underline; cursor:pointer}
+    @media (max-width:1000px){
+      .hero{grid-template-columns:1fr}
+      .card{grid-column: span 12}
+      .card.wide{grid-column: span 12}
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="nav">
+      <div class="brand">
+        <div class="logo"><i class="fa-solid fa-heart-pulse"></i></div>
+        <div>كود ماسترز — ديمو مراقبة النعاس</div>
+      </div>
+      <div class="nav-actions">
+        <button id="btnDemo" class="btn primary"><i class="fa-solid fa-bolt"></i> وضع تجريبي</button>
+        <button id="btnBLE" class="btn"><i class="fa-brands fa-bluetooth-b"></i> اتصال ESP32 (BLE)</button>
+        <button id="btnDark" class="btn"><i class="fa-solid fa-moon"></i> وضع ليلي</button>
+      </div>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="banner">
+      <h1>ساعة مراقبة النعاس والدوخة — ديمو واجهة</h1>
+      <div class="subtitle">عرض لحظي للنبض وSpO₂ والحرارة والحركة + مؤشر خطر ذكي + إنذارات طوارئ ورسالة موقع</div>
+      <div class="status-badges">
+        <span class="badge"><i class="fa-solid fa-wave-square"></i> بث مباشر للقيم</span>
+        <span class="badge"><i class="fa-solid fa-bell"></i> إنذار + عدّاد طوارئ</span>
+        <span class="badge"><i class="fa-solid fa-map-location-dot"></i> التقاط موقع الهاتف</span>
+        <span class="badge"><i class="fa-solid fa-sliders"></i> حساسية قابلة للتعديل</span>
+      </div>
+      <div class="controls" style="margin-top:12px">
+        <span class="pill"><span class="status-dot" id="dotStatus"></span> حالة النظام: <b id="txtStatus">متصل (وضع تجريبي)</b></span>
+        <span class="pill muted">دقّة الموقع: <b id="txtAcc" style="margin-inline-start:6px">—</b></span>
+        <span class="pill muted">آخر تحديث: <b id="txtTime" style="margin-inline-start:6px">—</b></span>
+      </div>
+    </div>
+    <div class="banner" style="display:flex; align-items:center; gap:18px; justify-content:space-between">
+      <div class="risk safe" id="riskDial" style="--risk:10">
+        <div>
+          <div class="label">مؤشر الخطر</div>
+          <div class="value" id="riskVal">10%</div>
+        </div>
+      </div>
+      <div>
+        <div class="controls">
+          <button id="btnTestAlert" class="btn danger"><i class="fa-solid fa-triangle-exclamation"></i> محاكاة إغماء</button>
+          <button id="btnBeep" class="btn"><i class="fa-solid fa-bell"></i> صفارة</button>
+          <button id="btnVibrate" class="btn"><i class="fa-solid fa-mobile-screen"></i> اهتزاز الهاتف</button>
+        </div>
+        <div class="footer-note">التنبيه النهائي يطلق عدّاد 10 ثواني، وبعدها إرسال رسالة تحتوي الموقع (رابط خرائط) وجهات الاتصال المحددة.</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="grid">
+    <!-- نبض -->
+    <div class="card">
+      <h3>النبض</h3>
+      <div class="vital">
+        <div class="heart"><i class="fa-solid fa-heart"></i></div>
+        <div>
+          <div class="big"><span id="hrVal">--</span> <span class="unit">نبضة/د</span></div>
+          <div class="muted" id="hrHint">مستقر</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SpO2 -->
+    <div class="card">
+      <h3>تشبع الأكسجين SpO₂</h3>
+      <div class="vital" style="justify-content:space-between">
+        <div class="ring" id="spo2Ring" style="--val:95">
+          <div>
+            <div class="label">SpO₂</div>
+            <div class="value" id="spo2Val">--%</div>
+          </div>
+        </div>
+        <div>
+          <div class="big" style="font-size:28px"><span id="spo2State">جيد</span></div>
+          <div class="muted">> 94% طبيعي</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- الحرارة -->
+    <div class="card">
+      <h3>حرارة الجسم</h3>
+      <div class="vital">
+        <i class="fa-solid fa-temperature-three-quarters" style="font-size:28px; color:#ffad66"></i>
+        <div>
+          <div class="big"><span id="tempVal">--</span> <span class="unit">°C</span></div>
+          <div class="muted" id="tempHint">طبيعي</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- الحركة -->
+    <div class="card">
+      <h3>الحركة/الوضع</h3>
+      <div class="vital" style="align-items:flex-start">
+        <i class="fa-solid fa-person-running" style="font-size:26px; color:#8bd4ff"></i>
+        <div>
+          <div class="big" style="font-size:26px"><span id="motionVal">--</span> <span class="unit">m/s²</span></div>
+          <div class="muted" id="posture">—</div>
+          <div class="muted">ثبات: <b id="stillSec">0</b> ث</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- الرسم -->
+    <div class="card wide">
+      <h3>رسم بياني لحظي</h3>
+      <div class="chart-wrap">
+        <canvas id="vitalsChart"></canvas>
+      </div>
+    </div>
+
+    <!-- السجل -->
+    <div class="card wide">
+      <h3>السجل</h3>
+      <div class="log" id="log"></div>
+    </div>
+
+    <!-- الإعدادات -->
+    <div class="card full">
+      <h3>الإعدادات والحساسية</h3>
+      <div class="settings">
+        <div class="field">
+          <label>حد أدنى للنبض (إنذار)</label>
+          <input type="range" id="minHR" min="30" max="70" value="45" />
+          <div class="muted">القيمة الحالية: <b id="lblMinHR">45</b> bpm</div>
+        </div>
+        <div class="field">
+          <label>حد أدنى SpO₂ (إنذار)</label>
+          <input type="range" id="minSpO2" min="80" max="97" value="90" />
+          <div class="muted">القيمة الحالية: <b id="lblMinSpO2">90</b>%</div>
+        </div>
+        <div class="field">
+          <label>مهلة عدم الاستجابة (ثواني)</label>
+          <input type="range" id="noResp" min="5" max="20" value="10" />
+          <div class="muted">القيمة الحالية: <b id="lblNoResp">10</b> ث</div>
+        </div>
+
+        <div class="field">
+          <label>رقم طوارئ 1</label>
+          <input type="text" id="phone1" placeholder="مثال: 01012345678" />
+        </div>
+        <div class="field">
+          <label>رقم طوارئ 2</label>
+          <input type="text" id="phone2" placeholder="مثال: 01198765432" />
+        </div>
+        <div class="field">
+          <label>تفعيل SMS وإرسال الموقع</label>
+          <div class="switch"><input id="smsOn" type="checkbox" checked> <span>تشغيل</span></div>
+        </div>
+      </div>
+      <div class="controls" style="margin-top:10px">
+        <button id="btnCountdown" class="btn danger"><i class="fa-solid fa-siren-on"></i> بدء عدّاد الطوارئ</button>
+        <span class="muted">الرابط الحالي للموقع: <span id="locLink" class="link">—</span></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- عدّاد الطوارئ -->
+  <div class="countdown" id="countdown">
+    <div class="panel">
+      <div class="muted">وضع الطوارئ قيد التفعيل</div>
+      <div class="big-count" id="countVal">10</div>
+      <div style="display:flex; gap:10px; justify-content:center">
+        <button id="btnCancel" class="btn success"><i class="fa-solid fa-circle-check"></i> أنا بخير — إلغاء</button>
+        <button id="btnSendNow" class="btn danger"><i class="fa-solid fa-paper-plane"></i> إرسال فوري</button>
+      </div>
+      <div class="hint" id="msgPreview">سيتم إرسال رسالة مع رابط موقعك للأرقام المحددة بعد انتهاء العدّاد.</div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    // حالة عامة
+    const state = {
+      demo:true,
+      connected:false,
+      hr: 78,
+      spo2: 97,
+      temp: 36.6,
+      motion: 0.5,
+      stillFor: 0,
+      risk: 10,
+      loc: {lat:null, lon:null, acc:null},
+      thresholds: {minHR:45, minSpO2:90, noResp:10},
+      simulateDrop:false,
+      chart:null,
+      audioCtx:null
+    };
+
+    // عناصر DOM
+    const el = {
+      hrVal: document.getElementById('hrVal'),
+      hrHint: document.getElementById('hrHint'),
+      spo2Ring: document.getElementById('spo2Ring'),
+      spo2Val: document.getElementById('spo2Val'),
+      spo2State: document.getElementById('spo2State'),
+      tempVal: document.getElementById('tempVal'),
+      tempHint: document.getElementById('tempHint'),
+      motionVal: document.getElementById('motionVal'),
+      posture: document.getElementById('posture'),
+      stillSec: document.getElementById('stillSec'),
+      riskDial: document.getElementById('riskDial'),
+      riskVal: document.getElementById('riskVal'),
+      log: document.getElementById('log'),
+      toast: document.getElementById('toast'),
+      dotStatus: document.getElementById('dotStatus'),
+      txtStatus: document.getElementById('txtStatus'),
+      txtAcc: document.getElementById('txtAcc'),
+      txtTime: document.getElementById('txtTime'),
+      countdown: document.getElementById('countdown'),
+      countVal: document.getElementById('countVal'),
+      msgPreview: document.getElementById('msgPreview'),
+      locLink: document.getElementById('locLink'),
+      // controls
+      btnDemo: document.getElementById('btnDemo'),
+      btnBLE: document.getElementById('btnBLE'),
+      btnDark: document.getElementById('btnDark'),
+      btnTestAlert: document.getElementById('btnTestAlert'),
+      btnBeep: document.getElementById('btnBeep'),
+      btnVibrate: document.getElementById('btnVibrate'),
+      btnCountdown: document.getElementById('btnCountdown'),
+      btnCancel: document.getElementById('btnCancel'),
+      btnSendNow: document.getElementById('btnSendNow'),
+      minHR: document.getElementById('minHR'),
+      minSpO2: document.getElementById('minSpO2'),
+      noResp: document.getElementById('noResp'),
+      lblMinHR: document.getElementById('lblMinHR'),
+      lblMinSpO2: document.getElementById('lblMinSpO2'),
+      lblNoResp: document.getElementById('lblNoResp'),
+      phone1: document.getElementById('phone1'),
+      phone2: document.getElementById('phone2'),
+      smsOn: document.getElementById('smsOn'),
+    };
+
+    // أنيميشن بسيطة: تحديث الوقت
+    function tickClock(){
+      const t = new Date();
+      const to2 = n => n.toString().padStart(2,'0');
+      el.txtTime.textContent = `${to2(t.getHours())}:${to2(t.getMinutes())}:${to2(t.getSeconds())}`;
+      requestAnimationFrame(()=>{});
+    }
+    setInterval(tickClock, 1000);
+
+    // رسم بياني
+    function setupChart(){
+      const ctx = document.getElementById('vitalsChart').getContext('2d');
+      const labels = Array.from({length:60}, (_,i)=>`${i-59}s`);
+      state.chart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels,
+          datasets: [
+            {label:'HR', data:Array(60).fill(null), borderColor:'#ff4d6d', tension:.3, borderWidth:2, pointRadius:0},
+            {label:'SpO2', data:Array(60).fill(null), borderColor:'#6c8dff', tension:.3, borderWidth:2, pointRadius:0},
+            {label:'Temp', data:Array(60).fill(null), borderColor:'#ffad66', tension:.3, borderWidth:2, pointRadius:0},
+          ]
+        },
+        options: {
+          responsive:true, maintainAspectRatio:false,
+          plugins:{legend:{labels:{color:'#cbd2ff'}}},
+          scales:{
+            x:{ticks:{color:'#9aa2ff'}, grid:{color:'rgba(255,255,255,.06)'}},
+            y:{ticks:{color:'#9aa2ff'}, grid:{color:'rgba(255,255,255,.06)'}}
+          }
+        }
+      });
+    }
+
+    // إشعارات بسيطة
+    function toast(msg, type='info'){
+      el.toast.textContent = msg;
+      el.toast.className = 'toast show';
+      if(type==='warn') el.toast.style.borderColor='#6f5f13';
+      if(type==='danger') el.toast.style.borderColor='#7a2836';
+      setTimeout(()=> el.toast.classList.remove('show'), 2600);
+    }
+
+    // سجل
+    function addLog(type, text){
+      const item = document.createElement('div');
+      item.className = 'item';
+      let iconCls = 'i-safe fa-circle-check';
+      if(type==='warn') iconCls = 'i-warn fa-triangle-exclamation';
+      if(type==='danger') iconCls = 'i-danger fa-radiation';
+      item.innerHTML = `
+        <i class="fa-solid ${iconCls}"></i>
+        <div>
+          <div>${text}</div>
+          <div class="muted" style="font-size:12px">${new Date().toLocaleTimeString()}</div>
+        </div>
+      `;
+      el.log.prepend(item);
+      // keep last 30
+      if(el.log.children.length>30) el.log.lastChild.remove();
+    }
+
+    // حساب مؤشر الخطر
+    function computeRisk(){
+      const {hr, spo2, temp, stillFor, thresholds} = state;
+      let risk = 0;
+      if (hr < thresholds.minHR) risk += 35;
+      if (spo2 < thresholds.minSpO2) risk += 35;
+      if (stillFor >= 8) risk += 20;
+      if (temp < 35.5 || temp > 38) risk += 10;
+      // clamp
+      risk = Math.max(0, Math.min(100, risk));
+      state.risk = risk;
+
+      // تحديث الديال
+      el.riskDial.style.setProperty('--risk', risk);
+      el.riskVal.textContent = risk.toFixed(0) + '%';
+      el.riskDial.classList.remove('safe','warn');
+      if (risk < 35) el.riskDial.classList.add('safe');
+      else if (risk < 70) el.riskDial.classList.add('warn');
+      else el.riskDial.classList.remove('safe','warn');
+
+      return risk;
+    }
+
+    // تحديث الواجهة
+    function updateUI(){
+      el.hrVal.textContent = state.hr.toFixed(0);
+      el.hrHint.textContent = state.hr < state.thresholds.minHR ? 'منخفض' : 'مستقر';
+
+      el.spo2Val.textContent = state.spo2.toFixed(0) + '%';
+      el.spo2Ring.style.setProperty('--val', state.spo2.toFixed(0));
+      el.spo2State.textContent = state.spo2 >= 95 ? 'جيد' : (state.spo2 >= state.thresholds.minSpO2 ? 'مقبول' : 'منخفض');
+
+      el.tempVal.textContent = state.temp.toFixed(1);
+      el.tempHint.textContent = (state.temp >= 36 && state.temp <= 37.5) ? 'طبيعي' : 'غير طبيعي';
+
+      el.motionVal.textContent = state.motion.toFixed(2);
+      el.posture.textContent = state.motion < 0.15 ? 'ثابت/استلقاء' : (state.motion < 0.6 ? 'جلوس/وقوف' : 'نشاط');
+      el.stillSec.textContent = state.stillFor;
+
+      // chart
+      const d = state.chart.data.datasets;
+      d[0].data.push(state.hr); d[0].data.shift();
+      d[1].data.push(state.spo2); d[1].data.shift();
+      d[2].data.push(state.temp); d[2].data.shift();
+      state.chart.update('none');
+    }
+
+    // محاكاة القياسات
+    function simulateTick(){
+      if(!state.demo) return;
+      const drift = (v, min, max, step)=> Math.max(min, Math.min(max, v + (Math.random()*2-1)*step));
+      if (state.simulateDrop){
+        state.hr = drift(state.hr, 35, 75, 1.2);
+        state.spo2 = drift(state.spo2, 84, 92, 0.8);
+        state.motion = drift(state.motion, 0.0, 0.12, 0.05);
+      } else {
+        state.hr = drift(state.hr, 60, 110, 1.5);
+        state.spo2 = drift(state.spo2, 94, 99, 0.4);
+        state.motion = drift(state.motion, 0.05, 1.8, 0.2);
+      }
+      state.temp = drift(state.temp, 36.0, 37.5, 0.05);
+
+      // حساب الثبات
+      if (state.motion < 0.12) state.stillFor++;
+      else state.stillFor = 0;
+
+      updateUI();
+      const risk = computeRisk();
+
+      if (risk >= 70){
+        addLog('danger', 'اشتباه حالة طارئة — سيتم تشغيل العدّاد');
+        startCountdown();
+        // منع التكرار على طول
+        state.simulateDrop = false;
+      } else if (risk >= 40){
+        addLog('warn', 'تحذير: مؤشرات غير طبيعية — جاري المتابعة');
+      }
+    }
+
+    // عدّاد الطوارئ
+    let countdownTimer = null;
+    function startCountdown(){
+      const seconds = state.thresholds.noResp;
+      let remain = seconds;
+      el.countVal.textContent = remain;
+      el.countdown.classList.add('show');
+      buildSmsPreview();
+      beep(880, 120);
+      vibrate([120,80,120]);
+
+      clearInterval(countdownTimer);
+      countdownTimer = setInterval(()=>{
+        remain--;
+        el.countVal.textContent = remain;
+        if (remain<=0){
+          clearInterval(countdownTimer);
+          el.countdown.classList.remove('show');
+          sendEmergency();
+        }
+      }, 1000);
+    }
+    function cancelCountdown(){
+      clearInterval(countdownTimer);
+      el.countdown.classList.remove('show');
+      addLog('safe','تم إلغاء إنذار الطوارئ — استجابة المستخدم');
+      toast('تم الإلغاء', 'info');
+    }
+    function sendNow(){
+      clearInterval(countdownTimer);
+      el.countdown.classList.remove('show');
+      sendEmergency();
+    }
+
+    // رسالة الطوارئ (محاكاة)
+    function buildSmsPreview(){
+      const {lat, lon, acc} = state.loc;
+      const locTxt = (lat && lon) ? `الموقع: https://maps.google.com/?q=${lat},${lon} (±${acc||'?'}م)` : 'الموقع: غير متاح حالياً';
+      const msg = `طوارئ: اشتباه فقدان وعي.\nHR=${state.hr.toFixed(0)}, SpO2=${state.spo2.toFixed(0)}%, Temp=${state.temp.toFixed(1)}°C\n${locTxt}`;
+      el.msgPreview.textContent = msg;
+    }
+    function sendEmergency(){
+      const {phone1, phone2, smsOn} = el;
+      const numbers = [phone1.value, phone2.value].filter(Boolean);
+      const locUrl = (state.loc.lat && state.loc.lon) ? `https://maps.google.com/?q=${state.loc.lat},${state.loc.lon}` : '(الموقع غير متاح)';
+      addLog('danger', `إرسال تنبيه طارئ إلى: ${numbers.join(', ') || 'لا يوجد'} — ${locUrl}`);
+      toast('تم إرسال تنبيه الطوارئ (محاكاة)', 'danger');
+      beep(660, 120); setTimeout(()=>beep(520, 220), 150);
+      vibrate([200,100,200,100,300]);
+    }
+
+    // صوت صفارة بسيط
+    function ensureAudio(){
+      if (!state.audioCtx) state.audioCtx = new (window.AudioContext||window.webkitAudioContext)();
+    }
+    function beep(freq=880, dur=150){
+      ensureAudio();
+      const o = state.audioCtx.createOscillator();
+      const g = state.audioCtx.createGain();
+      o.type = 'square'; o.frequency.value = freq;
+      o.connect(g); g.connect(state.audioCtx.destination);
+      g.gain.setValueAtTime(0.001, state.audioCtx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.15, state.audioCtx.currentTime + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.00001, state.audioCtx.currentTime + dur/1000);
+      o.start(); o.stop(state.audioCtx.currentTime + dur/1000 + 0.02);
+    }
+    function vibrate(pattern=[140]){
+      if (navigator.vibrate) navigator.vibrate(pattern);
+    }
+
+    // جلب موقع الهاتف
+    function getLocation(){
+      if (!navigator.geolocation) { el.txtAcc.textContent='غير مدعوم'; return; }
+      navigator.geolocation.getCurrentPosition((pos)=>{
+        const {latitude, longitude, accuracy} = pos.coords;
+        state.loc = {lat:latitude.toFixed(6), lon:longitude.toFixed(6), acc: Math.round(accuracy)};
+        el.txtAcc.textContent = state.loc.acc ? state.loc.acc + ' م' : '—';
+        const url = `https://maps.google.com/?q=${state.loc.lat},${state.loc.lon}`;
+        el.locLink.textContent = url;
+        el.locLink.onclick = ()=> window.open(url, '_blank');
+      }, (err)=>{
+        el.txtAcc.textContent = 'مرفوض/خطأ';
+      }, {enableHighAccuracy:true, timeout:6000, maximumAge:10000});
+    }
+    setInterval(getLocation, 15000); // تحديث دورى
+    getLocation();
+
+    // BLE (اختياري — يتطلب HTTPS أو localhost)
+    let bleDevice = null, bleChar = null;
+    async function connectBLE(){
+      if (!navigator.bluetooth){
+        toast('BLE غير مدعوم في هذا المتصفح', 'warn'); return;
+      }
+      try{
+        // عدّل الUUIDs حسب كود ESP32
+        const serviceUUID = '0000fff0-0000-1000-8000-00805f9b34fb';
+        const charUUID    = '0000fff1-0000-1000-8000-00805f9b34fb';
+        bleDevice = await navigator.bluetooth.requestDevice({
+          filters: [{ services: [serviceUUID] }],
+          optionalServices: [serviceUUID]
+        });
+        const server = await bleDevice.gatt.connect();
+        const service = await server.getPrimaryService(serviceUUID);
+        bleChar = await service.getCharacteristic(charUUID);
+        await bleChar.startNotifications();
+        bleChar.addEventListener('characteristicvaluechanged', evt=>{
+          const val = new TextDecoder().decode(evt.target.value);
+          // توقع صيغة JSON من ESP32 مثلاً: {"hr":78,"spo2":97,"temp":36.7,"motion":0.2}
+          try{
+            const data = JSON.parse(val);
+            if (data.hr) state.hr = data.hr;
+            if (data.spo2) state.spo2 = data.spo2;
+            if (data.temp) state.temp = data.temp;
+            if (typeof data.motion === 'number') state.motion = data.motion;
+            updateUI(); computeRisk();
+          }catch(e){ /* ignore */ }
+        });
+        state.connected = true; state.demo = false;
+        el.txtStatus.textContent = 'متصل عبر BLE (قراءات حقيقية)';
+        addLog('safe','تم الاتصال بالـ ESP32 عبر BLE');
+        toast('تم الاتصال بالـ ESP32');
+      }catch(err){
+        toast('فشل الاتصال بالـ BLE', 'warn');
+        addLog('warn','تعذر الاتصال بالـ BLE — سيتم استخدام وضع تجريبي');
+        state.demo = true;
+      }
+    }
+
+    // أحداث الواجهة
+    el.btnDemo.onclick = ()=>{
+      state.demo = !state.demo;
+      el.btnDemo.classList.toggle('success', state.demo);
+      el.txtStatus.textContent = state.demo ? 'وضع تجريبي' : 'جاهز (بدون محاكاة)';
+      toast(state.demo ? 'تم تفعيل المحاكاة' : 'تم إيقاف المحاكاة');
+    };
+    el.btnBLE.onclick = connectBLE;
+    el.btnDark.onclick = ()=> document.body.classList.toggle('dark');
+    el.btnTestAlert.onclick = ()=>{
+      state.simulateDrop = true;
+      addLog('warn','بدء محاكاة هبوط حاد (HR/SpO₂/حركة)'); toast('جاري المحاكاة','warn');
+    };
+    el.btnBeep.onclick = ()=> beep(880, 180);
+    el.btnVibrate.onclick = ()=> vibrate([160,80,160]);
+    el.btnCountdown.onclick = startCountdown;
+    el.btnCancel.onclick = cancelCountdown;
+    el.btnSendNow.onclick = sendNow;
+
+    el.minHR.oninput = e=>{ state.thresholds.minHR = +e.target.value; el.lblMinHR.textContent = e.target.value; };
+    el.minSpO2.oninput = e=>{ state.thresholds.minSpO2 = +e.target.value; el.lblMinSpO2.textContent = e.target.value; };
+    el.noResp.oninput = e=>{ state.thresholds.noResp = +e.target.value; el.lblNoResp.textContent = e.target.value; };
+
+    // بدء
+    setupChart();
+    setInterval(simulateTick, 1000);
+    addLog('safe','بدء النظام — وضع تجريبي');
+    updateUI(); computeRisk();
+  </script>
+</body>
+</html>
